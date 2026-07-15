@@ -14,7 +14,6 @@ function getWorker() {
 
 async function ensurePdfjsModule() {
   if (!pdfjsReady) {
-    // @ts-expect-error -- no type declarations for the legacy Node build's subpath
     pdfjsReady = definePDFJSModule(() => import('pdfjs-dist/legacy/build/pdf.mjs'))
   }
   return pdfjsReady
