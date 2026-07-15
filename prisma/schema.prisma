@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Role {
+  ATTORNEY
+  CLERICAL
+  INVESTIGATOR
+}
+
+enum CaseStatus {
+  OPEN
+  PENDING_COURT
+  CLOSED
+}
+
+model Team {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  users     User[]
+  cases     Case[]
+  createdAt DateTime @default(now())
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  role      Role
+  team      Team     @relation(fields: [teamId], references: [id])
+  teamId    String
+  notes     Note[]
+  documents Document[]
+  createdAt DateTime @default(now())
+}
+
+model Case {
+  id           String     @id @default(cuid())
+  docketNumber String     @unique
+  title        String
+  parties      String
+  charges      String
+  status       CaseStatus @default(OPEN)
+  courtDate    DateTime?
+  team         Team       @relation(fields: [teamId], references: [id])
+  teamId       String
+  notes        Note[]
+  documents    Document[]
+  createdAt    DateTime   @default(now())
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  content   String
+  case      Case     @relation(fields: [caseId], references: [id])
+  caseId    String
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+  createdAt DateTime @default(now())
+}
+
+model Document {
+  id         String   @id @default(cuid())
+  filename   String
+  storedName String
+  case       Case     @relation(fields: [caseId], references: [id])
+  caseId     String
+  uploadedBy User     @relation(fields: [uploadedById], references: [id])
+  uploadedById String
+  uploadedAt DateTime @default(now())
+}
